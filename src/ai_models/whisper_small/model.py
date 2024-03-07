@@ -74,7 +74,7 @@ class WhisperSmall(Speech2TextInterface):
             sampling_rate=16000, 
             return_tensors="pt"
         ).input_features.to(self.device)
-        input_features = input_features.to(dtype=self.torch_dtype).to(self.device)
+        input_features = input_features.to(self.device, dtype=self.torch_dtype)
 
         # get decoder for our language
         forced_decoder_ids = self.processor.get_decoder_prompt_ids(
