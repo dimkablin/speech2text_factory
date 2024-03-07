@@ -1,13 +1,15 @@
 """Speech to text model initialization file"""
+import os
 import torch
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
+from src.ai_models.speech2text_interface import Speech2TextInterface
 
 
-class Speech2TextOpenAI:
+class WhisperSmall(Speech2TextInterface):
     """ Speech to text model initialization file."""
     def __init__(self, device = None):
         self.model_name = "openai/whisper-small"
-        self.path_to_model = "/mnt/u/GitHub/speech2text_model/src/ai_models/weigths/"
+        self.path_to_model = "src/ai_models/whisper_small/weigths/"
         self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
         if device is None:
@@ -17,20 +19,6 @@ class Speech2TextOpenAI:
         self.processor = None
         self.pipe = None
         self.load_weigths(self.path_to_model)
-
-
-    def predict(self, file_path: str) -> str:
-        """ Get model output from the pipeline.
-
-        Args:
-            file_path (str): path to the mp3 file.
-
-        Returns:
-            str: model output.
-        """
-
-        return ['text']
-
 
     def load_weigths(self, path: str):
         """ Download the model weights."""
@@ -67,11 +55,25 @@ class Speech2TextOpenAI:
             return_timestamps=True,
             torch_dtype=self.torch_dtype,
             device=self.device,
-        )       
+        )
 
+    def __call__(self, file_path: str) -> str:
+        """ Get model output from the pipeline.
 
+        Args:
+            file_path (str): path to the mp3 file.
 
-if __name__ == "__main__":
-    # print(predict("audio.mp3"))
-    model = Speech2TextOpenAI()
-    print(model.predict("../data/SLAVA MARLOW Ты далеко.mp3"))
+        Returns:
+            str: model output.
+        """
+
+        return self.pipe(file_path)['text']
+
+    def __str__(self) -> str:
+        return f"Model :20 WhisperSmall \n\
+            Dtype :20 {self.torch_dtype} \n\
+            Device :20 {self.device}"
+
+    @staticmethod
+    def get_model_name() -> str:
+        return "openai/whisper-small"

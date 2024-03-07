@@ -1,3 +1,6 @@
+__pycache__/
+.ipynb_checkpoints/
+
 # Default ignored files
 /shelf/
 /workspace.xml
@@ -7,4 +10,4 @@
 /dataSources/
 /dataSources.local.xml
 /.idea/
-/src/ai_models/whisper_small/weigths/
+weigths/
