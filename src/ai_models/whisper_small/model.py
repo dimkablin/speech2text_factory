@@ -3,7 +3,7 @@ import os
 import torch
 from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq, pipeline
 from src.ai_models.speech2text_interface import Speech2TextInterface
-from utils.features_extractor import load_audio
+from src.utils.features_extractor import load_audio
 
 
 class WhisperSmall(Speech2TextInterface):
@@ -20,6 +20,9 @@ class WhisperSmall(Speech2TextInterface):
         self.model = None
         self.processor = None
         self.load_weigths(self.path_to_model)
+
+        # move to device
+        self.model.to(self.device)
 
     def load_weigths(self, path: str):
         """ Download the model weights."""
@@ -71,15 +74,21 @@ class WhisperSmall(Speech2TextInterface):
             sampling_rate=16000, 
             return_tensors="pt"
         ).input_features.to(self.device)
+        input_features = input_features.to(dtype=self.torch_dtype).to(self.device)
 
         # get decoder for our language
         forced_decoder_ids = self.processor.get_decoder_prompt_ids(
             language=self.language,
             task="transcribe"
         )
-        print(input_features.shape)
 
-        return ['text']
+        # model inference
+        pred_ids = self.model.generate(input_features, forced_decoder_ids=forced_decoder_ids)
+
+        # decode the transcription
+        transcription = self.processor.batch_decode(pred_ids, skip_special_tokens=True)
+
+        return transcription
 
     def __str__(self) -> str:
         return f"Model :20 WhisperSmall \n\
