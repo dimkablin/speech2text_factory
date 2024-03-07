@@ -1,14 +1,16 @@
 """Speech to text model initialization file"""
 import os
 import torch
-from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
+from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq, pipeline
 from src.ai_models.speech2text_interface import Speech2TextInterface
+from utils.features_extractor import load_audio
 
 
 class WhisperSmall(Speech2TextInterface):
     """ Speech to text model initialization file."""
     def __init__(self, device = None):
         self.model_name = "openai/whisper-small"
+        self.language = "ru"
         self.path_to_model = "src/ai_models/whisper_small/weigths/"
         self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
@@ -17,45 +19,42 @@ class WhisperSmall(Speech2TextInterface):
 
         self.model = None
         self.processor = None
-        self.pipe = None
         self.load_weigths(self.path_to_model)
 
     def load_weigths(self, path: str):
         """ Download the model weights."""
         try:
             self.model = AutoModelForSpeechSeq2Seq.from_pretrained(
-                self.model_name,
-                cache_dir=path,
+                path,
                 torch_dtype=self.torch_dtype,
                 low_cpu_mem_usage=True,
                 use_safetensors=True
             )
 
-            self.processor = AutoProcessor.from_pretrained(self.model_name, cache_dir=path)
+            self.processor = AutoProcessor.from_pretrained(
+                path,
+                language=self.language,
+                task="transcribe"
+            )
+
+        # if we didnt find the model, we try to download it
         except OSError:
+
+            # load the model
             self.model = AutoModelForSpeechSeq2Seq.from_pretrained(
                 self.model_name,
                 torch_dtype=self.torch_dtype,
                 low_cpu_mem_usage=True,
                 use_safetensors=True
             )
+            self.processor = AutoProcessor.from_pretrained(
+                self.model_name,
+                language=self.language
+            )
 
-            self.processor = AutoProcessor.from_pretrained(self.model_name)
+            #  save the model
             self.model.save_pretrained(path)
             self.processor.save_pretrained(path)
-
-        self.pipe = pipeline(
-            "automatic-speech-recognition",
-            model=self.model,
-            tokenizer=self.processor.tokenizer,
-            feature_extractor=self.processor.feature_extractor,
-            max_new_tokens=128,
-            chunk_length_s=30,
-            batch_size=16,
-            return_timestamps=True,
-            torch_dtype=self.torch_dtype,
-            device=self.device,
-        )
 
     def __call__(self, file_path: str) -> str:
         """ Get model output from the pipeline.
@@ -66,8 +65,21 @@ class WhisperSmall(Speech2TextInterface):
         Returns:
             str: model output.
         """
+        # load the vois from path with 16gHz
+        input_features = self.processor(
+            load_audio(file_path), 
+            sampling_rate=16000, 
+            return_tensors="pt"
+        ).input_features.to(self.device)
 
-        return self.pipe(file_path)['text']
+        # get decoder for our language
+        forced_decoder_ids = self.processor.get_decoder_prompt_ids(
+            language=self.language,
+            task="transcribe"
+        )
+        print(input_features.shape)
+
+        return ['text']
 
     def __str__(self) -> str:
         return f"Model :20 WhisperSmall \n\
