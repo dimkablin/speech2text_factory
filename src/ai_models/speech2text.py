@@ -1,12 +1,12 @@
 """ Factory Method for speech to text models """
-from src.ai_models.whisper_small.model import WhisperSmall
+from src.ai_models.whisper.model import Whisper
 from src.ai_models.speech2text_interface.model import Speech2TextInterface
 
 
 class Speech2TextFactory:
     """ Factory Method for speech to text models """
     MODEL_MAP = {
-        WhisperSmall.get_model_name(): WhisperSmall
+        Whisper.get_model_name(): Whisper
     }
     MODEL = MODEL_MAP[MODEL_MAP.keys()[0]] # get first model
 

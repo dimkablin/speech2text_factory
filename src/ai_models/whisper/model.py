@@ -1,17 +1,16 @@
 """Speech to text model initialization file"""
-import os
 import torch
-from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq, pipeline
+from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 from src.ai_models.speech2text_interface import Speech2TextInterface
 from src.utils.features_extractor import load_audio
 
 
-class WhisperSmall(Speech2TextInterface):
+class Whisper(Speech2TextInterface):
     """ Speech to text model initialization file."""
-    def __init__(self, device = "cpu"):
-        self.model_name = "openai/whisper-small"
+    def __init__(self, device = None):
+        self.model_name = "openai/whisper-tiny"
         self.language = "ru"
-        self.path_to_model = "src/ai_models/whisper_small/weigths/"
+        self.path_to_model = "src/ai_models/whisper/weigths/"
         self.torch_dtype = torch.float32
         self.device = device
 
@@ -41,7 +40,7 @@ class WhisperSmall(Speech2TextInterface):
             self.processor = AutoProcessor.from_pretrained(
                 path,
                 language=self.language,
-                task="translate"
+                task="transcribe"
             )
 
         # if we didnt find the model, we try to download it
@@ -82,8 +81,8 @@ class WhisperSmall(Speech2TextInterface):
 
         # get decoder for our language
         forced_decoder_ids = self.processor.get_decoder_prompt_ids(
-            language="en",
-            task="translate"
+            language="ru",
+            task="transcribe"
         )
 
         # model inference
@@ -95,10 +94,10 @@ class WhisperSmall(Speech2TextInterface):
         return transcription
 
     def __str__(self) -> str:
-        return f"Model :20 WhisperSmall \n\
+        return f"Model :20 WhisperTiny \n\
             Dtype :20 {self.torch_dtype} \n\
             Device :20 {self.device}"
 
     @staticmethod
     def get_model_name() -> str:
-        return "openai/whisper-small"
+        return "openai/whisper-tiny"
