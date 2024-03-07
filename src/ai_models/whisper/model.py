@@ -8,14 +8,18 @@ from src.utils.features_extractor import load_audio
 
 class WhisperSmall(Speech2TextInterface):
     """ Speech to text model initialization file."""
-    def __init__(self, device = None):
+    def __init__(self, device = "cpu"):
         self.model_name = "openai/whisper-small"
         self.language = "ru"
         self.path_to_model = "src/ai_models/whisper_small/weigths/"
-        self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+        self.torch_dtype = torch.float32
+        self.device = device
 
         if device is None:
             self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        
+        if device == "cuda:0":
+            self.torch_dtype = torch.float16
 
         self.model = None
         self.processor = None
@@ -37,7 +41,7 @@ class WhisperSmall(Speech2TextInterface):
             self.processor = AutoProcessor.from_pretrained(
                 path,
                 language=self.language,
-                task="transcribe"
+                task="translate"
             )
 
         # if we didnt find the model, we try to download it
@@ -78,8 +82,8 @@ class WhisperSmall(Speech2TextInterface):
 
         # get decoder for our language
         forced_decoder_ids = self.processor.get_decoder_prompt_ids(
-            language=self.language,
-            task="transcribe"
+            language="en",
+            task="translate"
         )
 
         # model inference
