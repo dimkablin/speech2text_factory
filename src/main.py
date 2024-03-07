@@ -1,21 +1,14 @@
-"""Main FastAPI entry point."""
-from fastapi import FastAPI
+"""uvicorn server running app."""
+import uvicorn
 
 
-app = FastAPI()
-
-
-@app.get("/")
-async def root() -> str:
-    """Return a friendly HTTP greeting.
-
-    Returns:
-        str: small html page with microphone.
-    """
-    return "Hello World"
-
-
-@app.get("/predict")
-async def predict(name: str):
-    """Predict function."""
-    return {"message": f"Hello {name}"}
+if __name__ == "__main__":
+    uvicorn.run(
+        host="127.0.0.1",
+        port=8000,
+        log_level="info",
+        app="api.main:app",
+        timeout_keep_alive=9999,
+        ws_ping_timeout=9999,
+        limit_concurrency=9999
+    )

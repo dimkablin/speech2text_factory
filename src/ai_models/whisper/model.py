@@ -7,12 +7,16 @@ from src.utils.features_extractor import load_audio
 
 class Whisper(Speech2TextInterface):
     """ Speech to text model initialization file."""
-    def __init__(self, device = None):
-        self.model_name = "openai/whisper-tiny"
-        self.language = "ru"
+    def __init__(self, 
+            device = "cpu",
+            model_name: str = "openai/whisper-tiny",
+            language: str = "ru"
+        ):
+        self.model_name = model_name
+        self.language = language
+        self.device = device
         self.path_to_model = "src/ai_models/whisper/weigths/"
         self.torch_dtype = torch.float32
-        self.device = device
 
         if device is None:
             self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
