@@ -8,7 +8,7 @@ help:
 
 
 build:
-	python3 pip3 install torch torchvision torchaudio
+	python3 -m pip install torch torchvision torchaudio
 	python3 -m pip install -r requirements.txt
 
 clean: clean-build clean-pyc
