@@ -16,6 +16,10 @@ class Speech2TextInterface(ABC):
     def __str__(self) -> str:
         """Return the description of the model."""
 
+    @abstractmethod
+    def load_weigths(self, path: str) -> None:
+        """ Download or load the model weights."""
+
     @staticmethod
     def get_model_name() -> str:
         """Return the type of the model."""
