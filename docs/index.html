@@ -3,65 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Record Voice</title>
+    <title>Speech-to-Text</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        h1 {
+            color: #0066cc;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            background-color: #0066cc;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #resultContainer {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff; 
+        }
+
+        body.night-mode {
+            background-color: #333; 
+            color: #fff; 
+        }
+
+        body.night-mode button {
+            background-color: #666; 
+        }
+
+        body.night-mode #resultContainer {
+            border-color: #666; 
+            background-color: #444
+        }
+    </style>
 </head>
 <body>
-    <h1>Record Your Voice</h1>
-    <button id="startButton">Start Recording</button>
-    <button id="stopButton" disabled>Stop Recording</button>
-    <audio id="audioPlayer" controls></audio>
+    <h1>Speech-to-Text API</h1>
+    <p>Click the microphone icon to start recording:</p>
+    <button id="recordButton">Record</button>
+    <button id="playButton" disabled>Play Recording</button>
+    <div id="resultContainer"></div>
+
     <script>
-        const startButton = document.getElementById('startButton');
-        const stopButton = document.getElementById('stopButton');
-        const audioPlayer = document.getElementById('audioPlayer');
-        let audioChunks = [];
+        document.addEventListener('DOMContentLoaded', function() {
+            const recordButton = document.getElementById('recordButton');
+            const playButton = document.getElementById('playButton');
+            const resultContainer = document.getElementById('resultContainer');
+            let mediaRecorder;
+            let audioChunks = [];
+            let recordedAudioBlob;
 
-        startButton.addEventListener('click', async () => {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const mediaRecorder = new MediaRecorder(stream);
+            recordButton.addEventListener('click', startRecording);
+            playButton.addEventListener('click', playRecording);
 
-            mediaRecorder.addEventListener('dataavailable', (event) => {
-                if (event.data.size > 0) {
-                    audioChunks.push(event.data);
+            async function startRecording() {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+
+                mediaRecorder.ondataavailable = function(event) {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = function() {
+                    recordedAudioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    sendAudioToServer(recordedAudioBlob);
+                    audioChunks = [];
+                    playButton.disabled = false;  // Enable play button after recording
+                };
+
+                mediaRecorder.start();
+                recordButton.textContent = 'Stop Recording';
+                recordButton.removeEventListener('click', startRecording);
+                recordButton.addEventListener('click', stopRecording);
+            }
+
+            function stopRecording() {
+                mediaRecorder.stop();
+                recordButton.textContent = 'Record';
+                recordButton.removeEventListener('click', stopRecording);
+                recordButton.addEventListener('click', startRecording);
+            }
+
+            function playRecording() {
+                const audio = new Audio(URL.createObjectURL(recordedAudioBlob));
+                audio.play();
+            }
+
+            async function sendAudioToServer(audioBlob) {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'audio.wav');
+
+                try {
+                    const response = await fetch('http://127.0.0.1:8000/speech-to-text/', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();  // Parse the response as JSON
+                    console.log('Speech-to-Text Result:', result);
+
+                    // Display the result on the webpage
+                    if (result.result && result.result.length > 0) {
+                        resultContainer.textContent = result.result[0];
+                    } else {
+                        resultContainer.textContent = 'No transcription available.';
+                    }
+                } catch (error) {
+                    console.error('Error sending audio to server:', error);
+                    resultContainer.textContent = 'Unable to transcribe audio.';
                 }
-            });
-
-            mediaRecorder.addEventListener('stop', () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                audioPlayer.src = audioUrl;
-
-                // Send the audioBlob to the FastAPI endpoint
-                sendAudioToServer(audioBlob);
-            });
-
-            mediaRecorder.start();
-            startButton.disabled = true;
-            stopButton.disabled = false;
+            }
         });
-
-        stopButton.addEventListener('click', () => {
-            mediaRecorder.stop();
-            startButton.disabled = false;
-            stopButton.disabled = true;
-        });
-
-        function sendAudioToServer(audioBlob) {
-            const formData = new FormData();
-            formData.append('audio', audioBlob);
-
-            fetch('http://your-fastapi-server/speech-to-text/', {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Speech-to-text result:', data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
     </script>
 </body>
 </html>

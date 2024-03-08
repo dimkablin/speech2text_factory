@@ -1,7 +1,7 @@
 """Main FastAPI entry point."""
 import logging
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -38,7 +38,7 @@ app.add_middleware(
     allow_headers=["*"],
     allow_credentials=True,
 )
-app.include_router(router, prefix="/api", tags=["ai_models"])
+app.include_router(router, tags=["ai_models"])
 
 
 # GREETING SITE
@@ -50,10 +50,10 @@ async def root() -> str:
         str: small html page with microphone.
     """
     html_file_path = "docs/index.html"
-    
+
     try:
-        with open(html_file_path, "r") as file:
+        with open(html_file_path, "r", encoding="utf-8") as file:
             file_content = file.read()
         return HTMLResponse(content=file_content)
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Documentation file not found.")
+        return HTMLResponse(status_code=404, content="Documentation file not found.")

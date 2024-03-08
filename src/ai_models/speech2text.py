@@ -10,7 +10,7 @@ class Speech2TextFactory:
         Whisper.get_model_name(): Whisper
     }
     # get first model
-    MODEL = MODEL_MAP[MODEL_MAP.keys()[0]]()
+    MODEL = MODEL_MAP[next(iter(MODEL_MAP.keys()))]()
 
     @classmethod
     def get_model(cls) -> Speech2TextInterface:
@@ -28,7 +28,7 @@ class Speech2TextFactory:
         if model_name == cls.MODEL.get_model_name:
             return None
 
-        # delete models from DEVICE       
+        # delete models from DEVICE
         del cls.MODEL
         torch.cuda.empty_cache()
 

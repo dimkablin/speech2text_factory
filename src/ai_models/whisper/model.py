@@ -1,4 +1,6 @@
 """Speech to text model initialization file"""
+from io import BytesIO
+from fastapi import UploadFile
 import torch
 from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 from src.ai_models.speech2text_interface import Speech2TextInterface
@@ -7,7 +9,7 @@ from src.utils.features_extractor import load_audio
 
 class Whisper(Speech2TextInterface):
     """ Speech to text model initialization file."""
-    def __init__(self, 
+    def __init__(self,
             device = "cpu",
             model_name: str = "openai/whisper-tiny",
             language: str = "ru"
@@ -20,7 +22,7 @@ class Whisper(Speech2TextInterface):
 
         if device is None:
             self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        
+
         if device == "cuda:0":
             self.torch_dtype = torch.float16
 
@@ -66,19 +68,23 @@ class Whisper(Speech2TextInterface):
             self.model.save_pretrained(path)
             self.processor.save_pretrained(path)
 
-    def __call__(self, file_path: str) -> str:
+    def __call__(self, audio: UploadFile | str) -> str:
         """ Get model output from the pipeline.
 
         Args:
-            file_path (str): path to the mp3 file.
+            file_path (UploadFile | str): uploaded file or path to the wav file.
 
         Returns:
             str: model output.
         """
+
+        if isinstance(audio, UploadFile):
+            audio=BytesIO(audio.file.read())
+
         # load the vois from path with 16gHz
         input_features = self.processor(
-            load_audio(file_path), 
-            sampling_rate=16000, 
+            load_audio(audio),
+            sampling_rate=16000,
             return_tensors="pt"
         ).input_features.to(self.device)
         input_features = input_features.to(self.device, dtype=self.torch_dtype)

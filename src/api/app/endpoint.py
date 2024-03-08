@@ -20,7 +20,7 @@ def get_current_model() -> str:
     return MODELS_FACTORY.get_model().get_model_name()
 
 
-@router.post("speech-to-text/", response_model=str)
+@router.post("/speech-to-text/", response_model=str)
 def speech_to_text(audio: UploadFile = File(...)) -> str:
     """Predict function."""
     result = MODELS_FACTORY.get_model()(audio.file)
