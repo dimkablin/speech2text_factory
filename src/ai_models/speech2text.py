@@ -23,16 +23,21 @@ class Speech2TextFactory:
         return list(cls.MODEL_MAP.keys())
 
     @classmethod
-    def change_model(cls, model_name: str) -> None:
+    def get_model_config(cls, model_name) -> dict:
+        """Return the config of the model"""
+        return cls.MODEL_MAP[model_name].get_config()
+
+    @classmethod
+    def change_model(cls, model_name: str, config = None) -> None:
         """Change the model"""
-        if model_name == cls.MODEL.get_model_name:
-            return None
 
         # delete models from DEVICE
-        del cls.MODEL
-        torch.cuda.empty_cache()
+        cls.MODEL.model.to("cpu")
 
-        cls.MODEL = cls.MODEL_MAP[model_name]()
+        if config is None:
+            cls.MODEL = cls.MODEL_MAP[model_name]()
+
+        cls.MODEL = cls.MODEL_MAP[model_name](**config)
 
 
 MODELS_FACTORY = Speech2TextFactory()

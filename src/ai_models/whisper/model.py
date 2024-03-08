@@ -9,10 +9,14 @@ from src.utils.features_extractor import load_audio
 
 class Whisper(Speech2TextInterface):
     """ Speech to text model initialization file."""
+    DEVICES = ["cpu", "cuda:0", "cuda:1"]
+    LANGUAGES = ["russian", "english", "italian", "french", "spanish",
+                 "german", "ukrainian", "polish", "japanese", "mandarin"]
+
     def __init__(self,
             device = "cpu",
             model_name: str = "openai/whisper-tiny",
-            language: str = "ru"
+            language: str = "russian"
         ):
         self.model_name = model_name
         self.language = language
@@ -91,7 +95,7 @@ class Whisper(Speech2TextInterface):
 
         # get decoder for our language
         forced_decoder_ids = self.processor.get_decoder_prompt_ids(
-            language="ru",
+            language=self.language,
             task="transcribe"
         )
 
@@ -111,3 +115,15 @@ class Whisper(Speech2TextInterface):
     @staticmethod
     def get_model_name() -> str:
         return "openai/whisper-tiny"
+
+    @staticmethod
+    def get_config() -> dict:
+        """Return the list of possible configuration of the model."""
+        # Be sure that the cls.__dict__ contain the keys()
+        result = {
+            "device": Whisper.DEVICES,
+            "language": Whisper.LANGUAGES
+        }
+
+        return result
+    

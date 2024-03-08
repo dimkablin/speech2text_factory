@@ -23,3 +23,7 @@ class Speech2TextInterface(ABC):
     @staticmethod
     def get_model_name() -> str:
         """Return the type of the model."""
+
+    @staticmethod
+    def get_config() -> dict:
+        """Return the list of possible configuration of the model."""

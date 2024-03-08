@@ -1,4 +1,5 @@
 """Main FastAPI entry point."""
+from typing import Any, Dict
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import JSONResponse
 
@@ -27,4 +28,18 @@ def speech_to_text(audio: UploadFile = File(...)) -> str:
     return JSONResponse(
         status_code=200,
         content={"result": result}
+    )
+
+@router.get("/get-model-config/", response_model=Dict[str, Any])
+def get_model_config(model_name: str) -> Dict[str, Any]:
+    """Return the config of the model"""
+    return MODELS_FACTORY.get_model_config(model_name)
+
+@router.post("/change-model/")
+def change_model(model_name: str, config: dict):
+    """Change the model"""
+    MODELS_FACTORY.change_model(model_name, config)
+    return JSONResponse(
+        status_code=200,
+        content={"message": f"Model changed to {model_name} with config {config}"}
     )
