@@ -24,7 +24,7 @@ def get_current_model() -> str:
 @router.post("/speech-to-text/", response_model=str)
 def speech_to_text(audio: UploadFile = File(...)) -> str:
     """Predict function."""
-    result = MODELS_FACTORY.get_model()(audio.file)
+    result = MODELS_FACTORY(audio.file)
     return JSONResponse(
         status_code=200,
         content={"result": result}

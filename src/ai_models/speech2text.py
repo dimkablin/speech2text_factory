@@ -1,5 +1,4 @@
 """ Factory Method for speech to text models """
-import torch
 from src.ai_models.whisper.model import Whisper
 from src.ai_models.speech2text_interface import Speech2TextInterface
 
@@ -11,6 +10,15 @@ class Speech2TextFactory:
     }
     # get first model
     MODEL = MODEL_MAP[next(iter(MODEL_MAP.keys()))]()
+
+    @classmethod
+    def __call__(cls, *args, **kwargs) -> Speech2TextInterface:
+        """Call the current model."""
+        result = cls.MODEL(*args, **kwargs)
+
+        # grabage collector will delete this objects from CPU memory
+        args, kwargs = None, None
+        return result
 
     @classmethod
     def get_model(cls) -> Speech2TextInterface:
@@ -30,14 +38,14 @@ class Speech2TextFactory:
     @classmethod
     def change_model(cls, model_name: str, config = None) -> None:
         """Change the model"""
-
         # delete models from DEVICE
         cls.MODEL.model.to("cpu")
+        del cls.MODEL.model
 
         if config is None:
             cls.MODEL = cls.MODEL_MAP[model_name]()
-
-        cls.MODEL = cls.MODEL_MAP[model_name](**config)
+        else:
+            cls.MODEL = cls.MODEL_MAP[model_name](**config)
 
 
 MODELS_FACTORY = Speech2TextFactory()

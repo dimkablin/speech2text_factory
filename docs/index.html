@@ -59,6 +59,12 @@
     <button id="playButton" disabled>Play Recording</button>
     <div id="resultContainer"></div>
 
+    <h2>Model Configurations</h2>
+    <label for="modelSelect">Select Model:</label>
+    <select id="modelSelect"></select>
+    <button id="getConfigButton">Get Config</button>
+    <div id="configContainer"></div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const recordButton = document.getElementById('recordButton');
@@ -130,6 +136,118 @@
                     resultContainer.textContent = 'Unable to transcribe audio.';
                 }
             }
+
+            function showNotification(message, type) {
+                if (Notification.permission === 'granted') {
+                    new Notification(message, { icon: 'path/to/your/icon.png' });
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            new Notification(message, { icon: 'path/to/your/icon.png' });
+                        }
+                    });
+                }
+            }
+
+            const modelSelect = document.getElementById('modelSelect');
+            const getConfigButton = document.getElementById('getConfigButton');
+            const configContainer = document.getElementById('configContainer');
+
+            // Populate the model select dropdown
+            fetch('http://127.0.0.1:8000/get-model-names/')
+                .then(response => response.json())
+                .then(modelNames => {
+                    modelNames.forEach(modelName => {
+                        const option = document.createElement('option');
+                        option.value = modelName;
+                        option.textContent = modelName;
+                        modelSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching model names:', error));
+
+                getConfigButton.addEventListener('click', async function() {
+                    const selectedModel = modelSelect.value;
+
+                    try {
+                        // Fetch the configuration for the selected model
+                        const response = await fetch(`http://127.0.0.1:8000/get-model-config/?model_name=${encodeURIComponent(selectedModel)}`);
+                        const config = await response.json();
+
+                        // Display the configuration on the webpage
+                        configContainer.innerHTML = '<h3>Model Configuration:</h3>';
+                        const ul = document.createElement('ul');
+
+                        // Create a dropdown menu for each key in the config
+                        for (const key in config) {
+                            const li = document.createElement('li');
+                            li.textContent = `${key}: `;
+
+                            const select = createDropdown(config[key], key);
+                            li.appendChild(select);
+                            ul.appendChild(li);
+                        }
+
+                        configContainer.appendChild(ul);
+
+                        // Add button to change model config
+                        const changeConfigButton = createChangeConfigButton(selectedModel, config);
+                        configContainer.appendChild(changeConfigButton);
+                    } catch (error) {
+                        console.error('Error fetching model config:', error);
+                        configContainer.innerHTML = '<p>Error fetching model config.</p>';
+                    }
+                });
+
+                function createDropdown(options, key) {
+                    const select = document.createElement('select');
+                    options.forEach(optionValue => {
+                        const option = document.createElement('option');
+                        option.value = optionValue;
+                        option.textContent = optionValue;
+                        select.appendChild(option);
+                    });
+                    return select;
+                }
+
+                function createChangeConfigButton(selectedModel, config) {
+                    const changeConfigButton = document.createElement('button');
+                    changeConfigButton.textContent = 'Change Config';
+
+                    changeConfigButton.addEventListener('click', async function() {
+                        const newConfig = {};
+
+                        // Get user-selected values for each key
+                        configContainer.querySelectorAll('li').forEach(li => {
+                            const key = li.textContent.split(':')[0].trim();
+                            const selectedValue = li.querySelector('select').value;
+                            newConfig[key] = selectedValue;
+                        });
+
+                        try {
+                            // Send new config to server
+                            const response = await fetch(`http://127.0.0.1:8000/change-model/?model_name=${encodeURIComponent(selectedModel)}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'accept': 'application/json',
+                                },
+                                body: JSON.stringify(newConfig),
+                            });
+
+                            const result = await response.json();
+                            console.log('Model config changed:', result);
+                            showNotification('Model config changed successfully!', 'success');
+                        } catch (error) {
+                            console.error('Error changing model config:', error);
+                            showNotification('Error changing model config.', '');
+                        }
+                    });
+
+                    return changeConfigButton;
+                }
+            
+                
         });
     </script>
 </body>

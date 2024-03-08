@@ -14,7 +14,7 @@ class Whisper(Speech2TextInterface):
                  "german", "ukrainian", "polish", "japanese", "mandarin"]
 
     def __init__(self,
-            device = "cpu",
+            device = None,
             model_name: str = "openai/whisper-tiny",
             language: str = "russian"
         ):
@@ -90,7 +90,7 @@ class Whisper(Speech2TextInterface):
             load_audio(audio),
             sampling_rate=16000,
             return_tensors="pt"
-        ).input_features.to(self.device)
+        ).input_features
         input_features = input_features.to(self.device, dtype=self.torch_dtype)
 
         # get decoder for our language
@@ -104,7 +104,7 @@ class Whisper(Speech2TextInterface):
 
         # decode the transcription
         transcription = self.processor.batch_decode(pred_ids, skip_special_tokens=True)
-
+        input_features.to("cpu")
         return transcription
 
     def __str__(self) -> str:
