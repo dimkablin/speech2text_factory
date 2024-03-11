@@ -11,3 +11,4 @@ __pycache__/
 /dataSources.local.xml
 /.idea/
 weigths/
+src/ai_models/stt/weights/*
