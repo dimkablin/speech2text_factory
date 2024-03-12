@@ -4,4 +4,4 @@ requests~=2.30
 pydantic~=1.10
 transformers~=4.38.2
 accelerate
-nemo_toolkit['all']
+Cython
