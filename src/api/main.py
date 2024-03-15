@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.app.middleware import BackendMiddleware
-from src.api.app.endpoint import router
+from src.api.app.endpoint import router, router_ocr
 
 
 # LOGGING CONFIG SETTING
@@ -39,6 +39,7 @@ app.add_middleware(
     allow_credentials=True,
 )
 app.include_router(router, tags=["ai_models"])
+app.include_router(router_ocr, tags=["OCR"])
 
 
 # GREETING SITE

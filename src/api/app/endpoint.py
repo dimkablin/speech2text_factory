@@ -8,26 +8,26 @@ from src.ai_models.ocr_models.easyocr import EasyOCRDefault
 from src.ai_models.ocr_models.image_process import save_upload_file
 
 router = APIRouter()
-
-
-@router.get("/get-model-names/", response_model=list)
-def get_model_names() -> list:
-    """Return a list of model names."""
-    return MODELS_FACTORY.get_model_names()
+router_ocr = APIRouter()
 
 #Initialize easyOCR
-@router.get("/get-ocr-model-name/", response_model=str, tags=['OCR'])
+@router_ocr.get("/get-ocr-model-name/", response_model=str)
 def get_model_names() -> list:
     """Return a list of model names."""
     model = EasyOCRDefault()
     return model.get_model_type()
 
-@router.post("/ocr-model-inference/", response_model=list, tags=['OCR'])
+@router_ocr.post("/ocr-model-inference/", response_model=list)
 def image_to_result(image: UploadFile = File(...)) -> list:
     """Return OCR model inference"""
     inputs = save_upload_file(image)
     model = EasyOCRDefault()
     return model(inputs)
+
+@router.get("/get-model-names/", response_model=list)
+def get_model_names() -> list:
+    """Return a list of model names."""
+    return MODELS_FACTORY.get_model_names()
 
 @router.get("/get-current-model/", response_model=str)
 def get_current_model() -> str:
