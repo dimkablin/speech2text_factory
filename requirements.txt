@@ -6,3 +6,5 @@ transformers~=4.38.2
 accelerate
 Cython
 Megatron
+python-multipart
+ffmpeg-downloader
