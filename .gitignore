@@ -12,3 +12,4 @@ __pycache__/
 /.idea/
 weigths/
 src/ai_models/stt/weights/*
+venv/

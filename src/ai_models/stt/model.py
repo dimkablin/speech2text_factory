@@ -6,7 +6,7 @@ import numpy as np
 from io import BytesIO
 from fastapi import UploadFile
 import nemo.collections.asr as nemo_asr
-from src.ai_models.speech2text_interface import Speech2TextInterface
+from ai_models.speech2text_interface import Speech2TextInterface
 
 class Stt(Speech2TextInterface):
     """ Speech to text model initialization file."""

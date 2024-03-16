@@ -1,7 +1,7 @@
 """ Factory Method for speech to text models """
-from src.ai_models.whisper.model import Whisper
-from src.ai_models.stt.model import Stt
-from src.ai_models.speech2text_interface import Speech2TextInterface
+from ai_models.whisper.model import Whisper
+from ai_models.stt.model import Stt
+from ai_models.speech2text_interface import Speech2TextInterface
 
 
 class Speech2TextFactory:

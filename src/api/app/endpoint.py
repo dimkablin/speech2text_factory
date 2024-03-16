@@ -3,7 +3,7 @@ from typing import Any, Dict
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import JSONResponse
 
-from src.ai_models.speech2text import MODELS_FACTORY
+from ai_models.speech2text import MODELS_FACTORY
 
 
 router = APIRouter()

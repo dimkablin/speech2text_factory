@@ -5,8 +5,8 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.app.middleware import BackendMiddleware
-from src.api.app.endpoint import router
+from api.app.middleware import BackendMiddleware
+from api.app.endpoint import router
 
 
 # LOGGING CONFIG SETTING

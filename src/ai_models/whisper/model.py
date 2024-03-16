@@ -3,8 +3,8 @@ from io import BytesIO
 from fastapi import UploadFile
 import torch
 from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
-from src.ai_models.speech2text_interface import Speech2TextInterface
-from src.utils.features_extractor import load_audio
+from ai_models.speech2text_interface import Speech2TextInterface
+from utils.features_extractor import load_audio
 
 
 class Whisper(Speech2TextInterface):
