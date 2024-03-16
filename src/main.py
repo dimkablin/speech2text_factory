@@ -10,5 +10,6 @@ if __name__ == "__main__":
         app="api.main:app",
         timeout_keep_alive=9999,
         ws_ping_timeout=9999,
-        limit_concurrency=9999
+        limit_concurrency=9999,
+        reload=True
     )

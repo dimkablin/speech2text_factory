@@ -14,7 +14,7 @@ class Speech2TextFactory:
     MODEL = MODEL_MAP[next(iter(MODEL_MAP.keys()))]()
 
     @classmethod
-    def __call__(cls, *args, **kwargs) -> Speech2TextInterface:
+    async def __call__(cls, *args, **kwargs) -> Speech2TextInterface:
         """Call the current model."""
         result = cls.MODEL(*args, **kwargs)
 
@@ -23,22 +23,22 @@ class Speech2TextFactory:
         return result
 
     @classmethod
-    def get_model(cls) -> Speech2TextInterface:
+    async def get_model(cls) -> Speech2TextInterface:
         """Return the speech to text model by name."""
         return cls.MODEL
 
     @classmethod
-    def get_model_names(cls) -> list:
+    async def get_model_names(cls) -> list:
         """Return a list of model names"""
         return list(cls.MODEL_MAP.keys())
 
     @classmethod
-    def get_model_config(cls, model_name) -> dict:
+    async def get_model_config(cls, model_name) -> dict:
         """Return the config of the model"""
         return cls.MODEL_MAP[model_name].get_config()
 
     @classmethod
-    def change_model(cls, model_name: str, config = None) -> None:
+    async def change_model(cls, model_name: str, config = None) -> None:
         """Change the model"""
         # delete models from DEVICE
         cls.MODEL.model.to("cpu")
