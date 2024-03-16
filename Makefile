@@ -10,7 +10,7 @@ help:
 build:
 	python3 -m pip install torch torchvision torchaudio
 	python3 -m pip install -r requirements.txt
-	pip install nemo_toolkit['all']
+	pip install nemo_toolkit['all']==1.21
 
 
 clean: clean-build clean-pyc
