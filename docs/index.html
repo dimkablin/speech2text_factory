@@ -70,6 +70,7 @@
             const recordButton = document.getElementById('recordButton');
             const playButton = document.getElementById('playButton');
             const resultContainer = document.getElementById('resultContainer');
+            const BACKEND_URL = process.env.BACKEND_URL || "http://127.0.0.1:8888/"
             let mediaRecorder;
             let audioChunks = [];
             let recordedAudioBlob;
@@ -117,7 +118,7 @@
                 formData.append('audio', audioBlob, 'audio.wav');
 
                 try {
-                    const response = await fetch('http://127.0.0.1:8000/speech-to-text/', {
+                    const response = await fetch(`${BACKEND_URL}/speech-to-text/`, {
                         method: 'POST',
                         body: formData
                     });
@@ -154,7 +155,7 @@
             const configContainer = document.getElementById('configContainer');
 
             // Populate the model select dropdown
-            fetch('http://127.0.0.1:8000/get-model-names/')
+            fetch(`${process.env.BACKEND_URL}/get-model-names/`)
                 .then(response => response.json())
                 .then(modelNames => {
                     modelNames.forEach(modelName => {
@@ -171,7 +172,7 @@
 
                     try {
                         // Fetch the configuration for the selected model
-                        const response = await fetch(`http://127.0.0.1:8000/get-model-config/?model_name=${encodeURIComponent(selectedModel)}`);
+                        const response = await fetch(`${BACKEND_URL}/get-model-config/?model_name=${encodeURIComponent(selectedModel)}`);
                         const config = await response.json();
 
                         // Display the configuration on the webpage
@@ -226,7 +227,7 @@
 
                         try {
                             // Send new config to server
-                            const response = await fetch(`http://127.0.0.1:8000/change-model/?model_name=${encodeURIComponent(selectedModel)}`, {
+                            const response = await fetch(`${BACKEND_URL}/change-model/?model_name=${encodeURIComponent(selectedModel)}`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',

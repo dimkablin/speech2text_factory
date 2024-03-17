@@ -1,5 +1,6 @@
 """Main FastAPI entry point."""
 import logging
+import os
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -57,3 +58,8 @@ async def root() -> str:
         return HTMLResponse(content=file_content)
     except FileNotFoundError:
         return HTMLResponse(status_code=404, content="Documentation file not found.")
+
+@app.get("/address")
+async def get_address() -> str:
+    """Return a address"""
+    return os.environ.get("BACKEND_URL", default="http://127.0.0.1:8888/")
