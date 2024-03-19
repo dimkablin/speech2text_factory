@@ -5,10 +5,10 @@ import torch
 import torchaudio
 
 
-def load_audio(file_path: BinaryIO | str | PathLike) -> torch.Tensor:
+def load_audio(file: BinaryIO | str | PathLike) -> torch.Tensor:
     """ Load audio from file."""
     # load our wav file
-    speech, sr = torchaudio.load(file_path)
+    speech, sr = torchaudio.load(file)
     resampler = torchaudio.transforms.Resample(sr, 16000)
     speech = resampler(speech)
     return speech.squeeze()

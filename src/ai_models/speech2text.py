@@ -11,7 +11,7 @@ class Speech2TextFactory:
         Stt.get_model_name(): Stt
     }
     # get first model
-    MODEL = MODEL_MAP[next(iter(MODEL_MAP.keys()))]()
+    MODEL = MODEL_MAP[Whisper.get_model_name()]()
 
     @classmethod
     async def __call__(cls, *args, **kwargs) -> Speech2TextInterface:

@@ -5,6 +5,7 @@ import os
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from api.app.middleware import BackendMiddleware
 from api.app.endpoint import router
@@ -40,6 +41,7 @@ app.add_middleware(
     allow_credentials=True,
 )
 app.include_router(router, tags=["ai_models"])
+app.mount("/docs", StaticFiles(directory="../docs"), name="docs")
 
 
 # GREETING SITE
@@ -50,7 +52,7 @@ async def root() -> str:
     Returns:
         str: small html page with microphone.
     """
-    html_file_path = "docs/index.html"
+    html_file_path = "../docs/index.html"
 
     try:
         with open(html_file_path, "r", encoding="utf-8") as file:
@@ -58,8 +60,3 @@ async def root() -> str:
         return HTMLResponse(content=file_content)
     except FileNotFoundError:
         return HTMLResponse(status_code=404, content="Documentation file not found.")
-
-@app.get("/address")
-async def get_address() -> str:
-    """Return a address"""
-    return os.environ.get("BACKEND_URL", default="http://127.0.0.1:8888/")

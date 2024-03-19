@@ -1,7 +1,10 @@
 """Main FastAPI entry point."""
+from io import BytesIO
+import os
 from typing import Any, Dict
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import JSONResponse
+from pydub import AudioSegment
 
 from ai_models.speech2text import MODELS_FACTORY
 
@@ -18,13 +21,23 @@ async def get_model_names() -> list:
 @router.get("/get-current-model/", response_model=str)
 async def get_current_model() -> str:
     """Return the name of the current model."""
-    return await MODELS_FACTORY.get_model().get_model_name()
+    return (await MODELS_FACTORY.get_model()).get_model_name()
 
 
 @router.post("/speech-to-text/", response_model=str)
 async def speech_to_text(audio: UploadFile = File(...)) -> str:
     """Predict function."""
-    result = await MODELS_FACTORY(audio.file)
+    path = os.path.join("data", audio.filename)
+
+    # read and save wav file
+    with open(path, "wb") as f:
+        f.write(await audio.read())
+
+    result = await MODELS_FACTORY(path)
+
+    # delete file
+    os.remove(path)
+
     return JSONResponse(
         status_code=200,
         content={"result": result}

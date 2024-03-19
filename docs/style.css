@@ -1,0 +1,45 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    transition: background-color 0.5s, color 0.5s;
+}
+
+h1 {
+    color: #0066cc;
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    background-color: #0066cc;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#resultContainer {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff; 
+}
+
+body.night-mode {
+    background-color: #333; 
+    color: #fff; 
+}
+
+body.night-mode button {
+    background-color: #666; 
+}
+
+body.night-mode #resultContainer {
+    border-color: #666; 
+    background-color: #444
+}

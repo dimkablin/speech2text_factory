@@ -4,7 +4,8 @@ WORKDIR /app
 COPY . /app
 VOLUME app/src
 
-RUN apt-get update && apt-get install -y ffmpeg libavcodec-extra
+RUN apt-get update && apt-get install -y ffmpeg libavcodec-extra build-essential
+
 RUN make build
 
 EXPOSE 8000

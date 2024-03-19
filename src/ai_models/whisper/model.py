@@ -4,6 +4,7 @@ from fastapi import UploadFile
 import torch
 from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 from ai_models.speech2text_interface import Speech2TextInterface
+from huggingface_hub.utils._validators import HFValidationError
 from utils.features_extractor import load_audio
 
 
@@ -15,13 +16,13 @@ class Whisper(Speech2TextInterface):
 
     def __init__(self,
             device = None,
-            model_name: str = "openai/whisper-tiny",
+            model_name: str = "openai/whisper-small",
             language: str = "russian"
         ):
         self.model_name = model_name
         self.language = language
         self.device = device
-        self.path_to_model = "src/ai_models/whisper/weigths/"
+        self.path_to_model = "./ai_models/whisper/weigths/"
         self.torch_dtype = torch.float32
 
         if device is None:
@@ -54,7 +55,7 @@ class Whisper(Speech2TextInterface):
             )
 
         # if we didnt find the model, we try to download it
-        except OSError:
+        except HFValidationError:
 
             # load the model
             self.model = AutoModelForSpeechSeq2Seq.from_pretrained(
@@ -72,7 +73,7 @@ class Whisper(Speech2TextInterface):
             self.model.save_pretrained(path)
             self.processor.save_pretrained(path)
 
-    def __call__(self, audio: UploadFile | str) -> str:
+    def __call__(self, audio: BytesIO | str) -> str:
         """ Get model output from the pipeline.
 
         Args:
@@ -81,10 +82,6 @@ class Whisper(Speech2TextInterface):
         Returns:
             str: model output.
         """
-
-        if isinstance(audio, UploadFile):
-            audio=BytesIO(audio.file.read())
-
         # load the vois from path with 16gHz
         input_features = self.processor(
             load_audio(audio),
@@ -108,13 +105,14 @@ class Whisper(Speech2TextInterface):
         return transcription
 
     def __str__(self) -> str:
-        return f"Model :20 WhisperTiny \n\
-            Dtype :20 {self.torch_dtype} \n\
-            Device :20 {self.device}"
+        return f"\
+            Model       : WhisperTiny \n\
+            Dtype       : {self.torch_dtype} \n\
+            Device      : {self.device}"
 
     @staticmethod
     def get_model_name() -> str:
-        return "openai/whisper-tiny"
+        return "openai/whisper-small"
 
     @staticmethod
     def get_config() -> dict:
