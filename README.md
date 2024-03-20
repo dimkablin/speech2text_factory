@@ -19,6 +19,7 @@ https://img.shields.io/badge/MIT-green?style=flat&label=license
 
 ## What is it?
 Speech2Text Factory is a modular project that can be integrated with other projects requiring a speech-to-text model. The server-side implementation is built on FastAPI. If needed, the project can be used independently by accessing the root page of the deployed project.
+
 ![alt text](docs/src/image.png)
 
 
