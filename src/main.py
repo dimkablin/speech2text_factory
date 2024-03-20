@@ -5,7 +5,7 @@ import uvicorn
 if __name__ == "__main__":
     uvicorn.run(
         host="127.0.0.1",
-        port=8000,
+        port=8001,
         log_level="info",
         app="api.main:app",
         timeout_keep_alive=9999,
