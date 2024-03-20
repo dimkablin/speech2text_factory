@@ -14,7 +14,7 @@ class Speech2TextFactory:
     MODEL = MODEL_MAP[Whisper.get_model_name()]()
 
     @classmethod
-    async def __call__(cls, *args, **kwargs) -> Speech2TextInterface:
+    async def __call__(cls, *args, **kwargs) -> str:
         """Call the current model."""
         result = cls.MODEL(*args, **kwargs)
 

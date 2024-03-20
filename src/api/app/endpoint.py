@@ -4,7 +4,6 @@ import os
 from typing import Any, Dict
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import JSONResponse
-from pydub import AudioSegment
 
 from ai_models.speech2text import MODELS_FACTORY
 
