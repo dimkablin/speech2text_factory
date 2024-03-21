@@ -59,9 +59,6 @@ async def root() -> str:
         with open(html_file_path, "r", encoding="utf-8") as file:
             file_content = file.read()
 
-        # replace backend url
-        address = os.getenv("BACKEND_URL") or "http://127.0.0.1:8000"
-
-        return HTMLResponse(content=file_content.replace(r"${BACKEND_URL}", address))
+        return HTMLResponse(content=file_content)
     except FileNotFoundError:
         return HTMLResponse(status_code=404, content="Documentation file not found.")
