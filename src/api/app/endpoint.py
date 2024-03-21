@@ -49,7 +49,7 @@ async def get_model_config(model_name: str) -> Dict[str, Any]:
     return await MODELS_FACTORY.get_model_config(model_name)
 
 
-@router.get("/change-model")
+@router.post("/change-model")
 async def change_model(model_name: str, config: dict):
     """Change the model"""
     await MODELS_FACTORY.change_model(model_name, config)
