@@ -1,4 +1,5 @@
 """ Factory Method for speech to text models """
+import logging
 from ai_models.whisper.model import Whisper
 from ai_models.stt.model import Stt
 from ai_models.speech2text_interface import Speech2TextInterface
@@ -43,11 +44,16 @@ class Speech2TextFactory:
         # delete models from DEVICE
         cls.MODEL.model.to("cpu")
         del cls.MODEL.model
+        try:
+            if config is None:
+                cls.MODEL = cls.MODEL_MAP[model_name]()
+            else:
+                cls.MODEL = cls.MODEL_MAP[model_name](**config)
+        except TypeError as e:
+            logging.warning("Got type error during the model changing.")
+            cls.MODEL = cls.MODEL_MAP[next(iter(cls.MODEL_MAP.keys()))]()
 
-        if config is None:
-            cls.MODEL = cls.MODEL_MAP[model_name]()
-        else:
-            cls.MODEL = cls.MODEL_MAP[model_name](**config)
+
 
 
 MODELS_FACTORY = Speech2TextFactory()

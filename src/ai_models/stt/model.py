@@ -11,7 +11,9 @@ from utils.features_extractor import load_audio
 
 class Stt(Speech2TextInterface):
     """ Speech to text model initialization file."""
-    DEVICES = ["cpu", "cuda:0", "cuda:1"]
+    DEVICES = ["cpu"]
+    for i in range(torch.cuda.device_count()):
+        DEVICES.append("cuda:" + str(i))
     LANGUAGES = ["russian"]
 
     def __init__(self,

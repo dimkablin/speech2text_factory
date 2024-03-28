@@ -1,6 +1,5 @@
 """Speech to text model initialization file"""
 from io import BytesIO
-from fastapi import UploadFile
 import torch
 from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 from ai_models.speech2text_interface import Speech2TextInterface
@@ -10,7 +9,9 @@ from utils.features_extractor import load_audio
 
 class Whisper(Speech2TextInterface):
     """ Speech to text model initialization file."""
-    DEVICES = ["cpu", "cuda:0", "cuda:1"]
+    DEVICES = ["cpu"]
+    for i in range(torch.cuda.device_count()):
+        DEVICES.append("cuda:" + str(i))
     LANGUAGES = ["russian", "english", "italian", "french", "spanish",
                  "german", "ukrainian", "polish", "japanese", "mandarin"]
 
