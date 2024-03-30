@@ -7,6 +7,7 @@ from io import BytesIO
 from fastapi import UploadFile
 import nemo.collections.asr as nemo_asr
 from ai_models.speech2text_interface import Speech2TextInterface
+from api.app.models import ConfigItem, GetCResponse
 from utils.features_extractor import load_audio
 
 class Stt(Speech2TextInterface):
@@ -90,12 +91,46 @@ class Stt(Speech2TextInterface):
         return "nvidia/stt_ru_conformer_transducer_large"
 
     @staticmethod
-    def get_config() -> dict:
+    def get_config() -> GetCResponse:
         """Return the list of possible configuration of the model."""
         # Be sure that the cls.__dict__ contain the keys()
-        result = {
-            "device": Stt.DEVICES,
-            "language": Stt.LANGUAGES
-        }
+        response = GetCResponse(
+            model_desciption=str(Stt),
+            items=[
+                # DEVICE CONFIG
+                ConfigItem(
+                    name="Девайс",
+                    descriptions="Процессор, на котором будут обрабатываться вычисления.",
+                    attributes_name="device",
+                    options=Stt.DEVICES
+                ),
 
-        return result
+                # LANGUAGE CONFIG
+                ConfigItem(
+                    name="Язык обработки",
+                    descriptions="Процессор, на котором будут обрабатываться вычисления.",
+                    attributes_name="language",
+                    options=Stt.LANGUAGES
+                )
+            ]
+        )
+
+        return response
+    
+    def get_cur_config(self) -> GetCResponse:
+        """Return the current config of the Whisper Small"""
+        response = GetCResponse(
+            items=[
+                ConfigItem(
+                    attributes_name="device",
+                    options=self.device
+                ),
+                ConfigItem(
+                    attributes_name="language",
+                    options=self.language
+                )
+            ]
+        )
+
+        return response
+

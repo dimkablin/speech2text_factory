@@ -4,6 +4,7 @@ import torch
 from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 from ai_models.speech2text_interface import Speech2TextInterface
 from huggingface_hub.utils._validators import HFValidationError
+from api.app.models import GetCResponse, ConfigItem
 from utils.features_extractor import load_audio
 
 
@@ -106,23 +107,52 @@ class Whisper(Speech2TextInterface):
         return transcription
 
     def __str__(self) -> str:
-        return f"\
-            Model       : WhisperTiny \n\
-            Dtype       : {self.torch_dtype} \n\
-            Device      : {self.device}"
+        return f"WhisperSmall"
 
     @staticmethod
     def get_model_name() -> str:
         return "openai/whisper-small"
 
     @staticmethod
-    def get_config() -> dict:
+    def get_config() -> GetCResponse:
         """Return the list of possible configuration of the model."""
         # Be sure that the cls.__dict__ contain the keys()
-        result = {
-            "device": Whisper.DEVICES,
-            "language": Whisper.LANGUAGES
-        }
+        response = GetCResponse(
+            model_desciption=str(Whisper),
+            items=[
+                # DEVICE CONFIG
+                ConfigItem(
+                    name="Девайс",
+                    descriptions="Процессор, на котором будут обрабатываться вычисления.",
+                    attributes_name="device",
+                    options=Whisper.DEVICES
+                ),
 
-        return result
+                # LANGUAGE CONFIG
+                ConfigItem(
+                    name="Язык декодирования",
+                    descriptions="Процессор, на котором будут обрабатываться вычисления.",
+                    attributes_name="language",
+                    options=Whisper.LANGUAGES
+                )
+            ]
+        )
+
+        return response
     
+    def get_cur_config(self) -> GetCResponse:
+        """Return the current config of the Whisper Small"""
+        response = GetCResponse(
+            items=[
+                ConfigItem(
+                    attributes_name="device",
+                    options=self.device
+                ),
+                ConfigItem(
+                    attributes_name="language",
+                    options=self.language
+                )
+            ]
+        )
+
+        return response

@@ -34,9 +34,14 @@ class Speech2TextFactory:
         return list(cls.MODEL_MAP.keys())
 
     @classmethod
-    async def get_model_config(cls, model_name) -> dict:
+    async def get_config(cls, model_name) -> dict:
         """Return the config of the model"""
         return cls.MODEL_MAP[model_name].get_config()
+
+    @classmethod
+    async def get_cur_config(cls) -> dict:
+        """Return the config of the model"""
+        return cls.MODEL.get_cur_config()
 
     @classmethod
     async def change_model(cls, model_name: str, config = None) -> None:

@@ -105,27 +105,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
             try {
                 // Fetch the configuration for the selected model
-                const response = await fetch(`${BACKEND_URL}/get-model-config/?model_name=${encodeURIComponent(selectedModel)}`);
-                const config = await response.json();
+                const response = await fetch(`${BACKEND_URL}/get-config/?model_name=${encodeURIComponent(selectedModel)}`);
+                const responseJson = await response.json();
 
                 // Display the configuration on the webpage
                 configContainer.innerHTML = '<h3>Model Configuration:</h3>';
                 const ul = document.createElement('ul');
 
-                // Create a dropdown menu for each key in the config
-                for (const key in config) {
+                // Create a dropdown menu for each item in the response
+                responseJson.items.forEach(item => {
                     const li = document.createElement('li');
-                    li.textContent = `${key}: `;
+                    li.textContent = `${item.name}: `;
 
-                    const select = createDropdown(config[key], key);
+                    const select = createDropdown(item.options, item.attributes_name);
                     li.appendChild(select);
                     ul.appendChild(li);
-                }
+                });
 
                 configContainer.appendChild(ul);
 
                 // Add button to change model config
-                const changeConfigButton = createChangeConfigButton(selectedModel, config);
+                const changeConfigButton = createChangeConfigButton(selectedModel, responseJson);
                 configContainer.appendChild(changeConfigButton);
             } catch (error) {
                 console.error('Error fetching model config:', error);
@@ -144,18 +144,26 @@ document.addEventListener('DOMContentLoaded', function() {
             return select;
         }
 
-        function createChangeConfigButton(selectedModel, config) {
+        function createChangeConfigButton(selectedModel, responseJson) {
             const changeConfigButton = document.createElement('button');
             changeConfigButton.textContent = 'Change Config';
 
             changeConfigButton.addEventListener('click', async function() {
-                const newConfig = {};
+                const newConfig = { items: [] };
 
-                // Get user-selected values for each key
+                // Get user-selected values for each dropdown
                 configContainer.querySelectorAll('li').forEach(li => {
-                    const key = li.textContent.split(':')[0].trim();
-                    const selectedValue = li.querySelector('select').value;
-                    newConfig[key] = selectedValue;
+                    const itemName = li.textContent.split(':')[0].trim();
+                    const selectedItem = li.querySelector('select').value;
+                    const item = responseJson.items.find(item => item.name === itemName);
+                    if (item) {
+                        newConfig.items.push({
+                            name: item.name,
+                            descriptions: item.descriptions,
+                            attributes_name: item.attributes_name,
+                            options: [selectedItem]
+                        });
+                    }
                 });
 
                 try {
@@ -180,6 +188,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
             return changeConfigButton;
         }
-    
-        
 });

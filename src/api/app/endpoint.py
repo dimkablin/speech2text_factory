@@ -6,6 +6,7 @@ from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import JSONResponse
 
 from ai_models.speech2text import MODELS_FACTORY
+from api.app.models import GetCResponse
 
 
 router = APIRouter()
@@ -43,10 +44,16 @@ async def speech_to_text(audio: UploadFile = File(...)) -> str:
     )
 
 
-@router.get("/get-model-config", response_model=Dict[str, Any])
-async def get_model_config(model_name: str) -> Dict[str, Any]:
+@router.get("/get-config", response_model=GetCResponse)
+async def get_model_config(model_name: str) -> GetCResponse:
     """Return the config of the model"""
-    return await MODELS_FACTORY.get_model_config(model_name)
+    return await MODELS_FACTORY.get_config(model_name)
+
+
+@router.get("/get-current-config", response_model=GetCResponse)
+async def get_model_config() -> GetCResponse:
+    """Return the config of the model"""
+    return await MODELS_FACTORY.get_cur_config()
 
 
 @router.post("/change-model")
